@@ -2,7 +2,7 @@ require("dotenv").config();
 const { format } = require("date-fns");
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const _ = require("lodash");
 var bodyParser = require("body-parser");
 
@@ -19,7 +19,7 @@ const { addPost } = require("./addPost.js");
 const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE];
 
 const oAuthToken = process.env.GITHUB_BOT_AUTH;
-const owner = "slarsendisney";
+const owner = "DesignRant";
 const repo = "designrant-app";
 
 // var cors = require("cors");
@@ -61,7 +61,7 @@ app.post("/submit-rant", async (req, res) => {
     numbers.forEach((number) => {
       twilioSend.messages.create({
         body: `New post added to DesignRant: ${prURL}`,
-        from: "+441173253685",
+        from: process.env.TWILIO_NUMBER,
         to: number,
       });
     });
@@ -71,5 +71,5 @@ app.post("/submit-rant", async (req, res) => {
 });
 
 app.listen(port, () =>
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`DesignRant API listening at http://localhost:${port}`)
 );
