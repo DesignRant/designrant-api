@@ -1,30 +1,32 @@
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
-const createPR = async function(req, headers, branch, owner, repo){
+const createPR = async function (req, headers, branch, owner, repo) {
+  const { author, title } = req.body;
 
-    const { author, title } =  req.body;
+  const prBody = {
+    title: `New Post: ${title} by ${author}`,
+    body: `New content submission by ${author} - "${title}".`,
+    head: branch,
+    base: "master",
+  };
 
-    const prBody = {
-        title: `New Post: ${title} by ${author}`,
-        body: `New content submission by ${author} - "${title}".`,
-        head: branch,
-        base: "master"
+  const makePR = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/pulls`,
+    {
+      method: "post",
+      headers,
+      body: JSON.stringify(prBody),
     }
+  ).catch(function (error) {
+    // Error handling here!
+    console.log(error);
+  });
 
-    const makePR = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls`, {
-        method: 'post',
-        headers,
-        body: JSON.stringify(prBody)
-    }).catch(function(error) {
-        // Error handling here!
-        console.log(error);   
-    });
+  const PRResponse = await makePR.json();
 
-    const PRResponse = await makePR.json()
-
-    return PRResponse.html_url
-}
+  return PRResponse.html_url;
+};
 
 module.exports = {
-    createPR
-}
+  createPR,
+};
