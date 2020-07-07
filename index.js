@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const _ = require("lodash");
 var bodyParser = require("body-parser");
-
+const INDEX = "/index.html";
 const twilioSend = require("twilio")(
   process.env.TWILIO_ACCOUNTSID,
   process.env.TWILIO_AUTHTOKEN
@@ -70,6 +70,7 @@ app.post("/submit-rant", async (req, res) => {
   res.send(`Hi ${author}`);
 });
 
+app.use((req, res) => res.sendFile(INDEX, { root: __dirname }));
 app.listen(port, () =>
   console.log(`DesignRant API listening at http://localhost:${port}`)
 );
