@@ -53,7 +53,6 @@ app.post("/posts-statuses", async (req, res) => {
         })
           .then((data) => data.json())
           .then((cleanData) => {
-            console.log(cleanData);
             const { state, number, merged } = cleanData;
             resolve({ state, number, merged });
           })
