@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { format } = require("date-fns");
 const express = require("express");
+const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
 const _ = require("lodash");
@@ -21,6 +22,10 @@ const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE];
 const oAuthToken = process.env.GITHUB_BOT_AUTH;
 const owner = "DesignRant";
 const repo = "designrant-app";
+const headers = {
+  "Content-Type": "application/json",
+  Authorization: `token ${oAuthToken}`,
+};
 
 // var cors = require("cors");
 // var allowedList = ["https://designrant.app/", "http://localhost:8000"];
@@ -37,14 +42,34 @@ const repo = "designrant-app";
 
 app.use(bodyParser.json());
 
+app.post("/posts-statuses", async (req, res) => {
+  const { ids } = req.body;
+  Promise.all(
+    ids.map((id) => {
+      return new Promise((resolve, rej) => {
+        fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${id}`, {
+          method: "get",
+          headers,
+        })
+          .then((data) => data.json())
+          .then((cleanData) => {
+            const { state, number, merged } = cleanData;
+            resolve({ state, number, merged });
+          })
+          .catch(function (error) {
+            // Error handling here!
+            console.log(error);
+          });
+      });
+    })
+  ).then((values) => {
+    res.send(values);
+  });
+});
+
 app.post("/submit-rant", async (req, res) => {
   const { author, title, isNewAuthor } = req.body;
   const currentDate = format(new Date(), "yyyy-MM-dd");
-
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `token ${oAuthToken}`,
-  };
 
   const folderName = `${currentDate}-${_.kebabCase(title)}`;
   const branch = `content/${folderName}`;
@@ -56,18 +81,23 @@ app.post("/submit-rant", async (req, res) => {
 
   await addPost(req, headers, branch, owner, repo, currentDate, folderName);
 
-  const prURL = await createPR(req, headers, branch, owner, repo);
+  const { html_url, number, state } = await createPR(
+    req,
+    headers,
+    branch,
+    owner,
+    repo
+  );
   if (process.env.TEXT_NOTIFICATIONS) {
-    numbers.forEach((number) => {
+    numbers.forEach((phone) => {
       twilioSend.messages.create({
-        body: `New post added to DesignRant: ${prURL}`,
+        body: `New post added to DesignRant: ${html_url}`,
         from: process.env.TWILIO_NUMBER,
-        to: number,
+        to: phone,
       });
     });
   }
-
-  res.send(`Hi ${author}`);
+  res.send({ post_id: number, state });
 });
 
 app.use((req, res) => res.sendFile(INDEX, { root: __dirname }));
