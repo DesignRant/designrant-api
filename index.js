@@ -28,7 +28,7 @@ const headers = {
 };
 
 var cors = require("cors");
-var allowedList = ["https://designrant.app/", "http://localhost:8000/", "*"];
+var allowedList = ["https://designrant.app/", "http://localhost:8000/"];
 var corsOptions = {
   origin: function (origin, callback) {
     if (allowedList.indexOf(origin) !== -1) {
