@@ -38,10 +38,10 @@ const headers = {
 
 var cors = require("cors");
 var allowedList = [
-  "https://designrant.app/",
-  "https://designrant-app-4548288658.gtsb.io/",
-  "http://localhost:8000/",
-  "http://localhost:4000/",
+  "https://designrant.app",
+  "https://designrant-app-4548288658.gtsb.io",
+  "http://localhost:8000",
+  "http://localhost:4000",
 ];
 var corsOptions = {
   origin: function (origin, callback) {
