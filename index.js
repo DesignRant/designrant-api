@@ -11,11 +11,20 @@ const twilioSend = require("twilio")(
   process.env.TWILIO_ACCOUNTSID,
   process.env.TWILIO_AUTHTOKEN
 );
+var firebase = require("firebase-admin");
+
+var serviceAccount = JSON.parse(process.env.FIEBASE_CONFIG);
+
+firebase.initializeApp({
+  credential: firebase.credential.cert(serviceAccount),
+  databaseURL: process.env.FIREBASE_DB_URL,
+});
 
 const { addAuthor } = require("./addAuthor.js");
 const { createPR } = require("./createPR.js");
 const { createBranch } = require("./createBranch.js");
 const { addPost } = require("./addPost.js");
+const { WorthySubmission } = require("./rant-app.js");
 
 const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE];
 
@@ -28,7 +37,11 @@ const headers = {
 };
 
 var cors = require("cors");
-var allowedList = ["https://designrant.app/", "http://localhost:8000"];
+var allowedList = [
+  "https://designrant.app/",
+  "https://designrant-app-4548288658.gtsb.io/",
+  "http://localhost:8000",
+];
 var corsOptions = {
   origin: function (origin, callback) {
     if (allowedList.indexOf(origin) !== -1) {
@@ -41,6 +54,12 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
+
+app.post("/worthy"),
+  async (req, res) => {
+    await WorthySubmission(req, firebase);
+    res.send(200);
+  };
 
 app.post("/posts-statuses", async (req, res) => {
   const { ids } = req.body;
