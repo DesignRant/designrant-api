@@ -55,11 +55,10 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
-app.post("/worthy"),
-  async (req, res) => {
-    await WorthySubmission(req, firebase);
-    res.send(200);
-  };
+app.post("/worthy", async (req, res) => {
+  await WorthySubmission(req, firebase);
+  res.send(200);
+});
 
 app.post("/posts-statuses", async (req, res) => {
   const { ids } = req.body;
