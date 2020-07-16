@@ -1,6 +1,26 @@
 const { format } = require("date-fns");
 
-const SuggestionSubmission = async function (req) {};
+const SuggestionStars = async function (req, firebase) {
+  const { id, vote } = req.body;
+  await firebase
+    .firestore()
+    .collection("suggestions")
+    .doc(id)
+    .set(
+      {
+        stars: firebase.firestore.FieldValue.increment(vote),
+      },
+      { merge: true }
+    );
+};
+
+const SuggestionSubmission = async function (req, firebase) {
+  const { formVal } = req.body;
+  await firebase.firestore().collection("suggestions").add({
+    suggestion: formVal,
+    date: new Date(),
+  });
+};
 
 const WorthySubmission = async function (req, firebase) {
   const { type, contentID } = req.body;
@@ -23,4 +43,6 @@ const WorthySubmission = async function (req, firebase) {
 
 module.exports = {
   WorthySubmission,
+  SuggestionStars,
+  SuggestionSubmission,
 };

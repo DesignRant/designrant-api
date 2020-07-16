@@ -24,7 +24,11 @@ const { addAuthor } = require("./addAuthor.js");
 const { createPR } = require("./createPR.js");
 const { createBranch } = require("./createBranch.js");
 const { addPost } = require("./addPost.js");
-const { WorthySubmission } = require("./rant-app.js");
+const {
+  WorthySubmission,
+  SuggestionStars,
+  SuggestionSubmission,
+} = require("./rant-app.js");
 
 const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE];
 
@@ -58,6 +62,16 @@ app.use(bodyParser.json());
 
 app.post("/worthy", async (req, res) => {
   await WorthySubmission(req, firebase);
+  res.send(200);
+});
+
+app.post("/stars", async (req, res) => {
+  await SuggestionStars(req, firebase);
+  res.send(200);
+});
+
+app.post("/suggest", async (req, res) => {
+  await SuggestionSubmission(req, firebase);
   res.send(200);
 });
 
