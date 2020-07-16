@@ -42,6 +42,7 @@ const headers = {
 
 var cors = require("cors");
 var allowedList = [
+  "https://api.designrant.app",
   "https://designrant.app",
   "https://designrant-app-4548288658.gtsb.io",
   "http://localhost:8000",
