@@ -10,7 +10,7 @@ const addPost = async function (
   owner,
   repo,
   currentDate,
-  folderName
+  folderName,
 ) {
   const { author, title, description, tags, markdown, hero } = req.body;
   // update the markdown body with frontmatter
@@ -74,6 +74,7 @@ const addPost = async function (
   );
 
   console.log("YAY");
+  
 };
 module.exports = {
   addPost,

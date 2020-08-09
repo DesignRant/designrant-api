@@ -13,24 +13,32 @@ const twilioSend = require("twilio")(
 );
 var firebase = require("firebase-admin");
 
-var serviceAccount = JSON.parse(process.env.FIEBASE_CONFIG);
+var serviceAccountApp = JSON.parse(process.env.FIREBASE_CONFIG);
+var serviceAccountWriter = JSON.parse(process.env.FIREBASE_CONFIG_WRITER);
 
 firebase.initializeApp({
-  credential: firebase.credential.cert(serviceAccount),
+  credential: firebase.credential.cert(serviceAccountApp),
   databaseURL: process.env.FIREBASE_DB_URL,
 });
+
+var firebaseWriter = firebase.initializeApp({
+  credential: firebase.credential.cert(serviceAccountWriter),
+  databaseURL: process.env.FIREBASE_WRITER_DB_URL,
+}, "writer");
 
 const { addAuthor } = require("./addAuthor.js");
 const { createPR } = require("./createPR.js");
 const { createBranch } = require("./createBranch.js");
 const { addPost } = require("./addPost.js");
+const { updateUserArticle } = require("./updateUserArticle.js");
+
 const {
   WorthySubmission,
   SuggestionStars,
   SuggestionSubmission,
 } = require("./rant-app.js");
 
-const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE];
+const numbers = [process.env.YP_PHONE, process.env.SLD_PHONE, process.env.RG_PHONE];
 
 const oAuthToken = process.env.GITHUB_BOT_AUTH;
 const owner = "DesignRant";
@@ -123,6 +131,12 @@ app.post("/submit-rant", async (req, res) => {
     owner,
     repo
   );
+  const { uid } = req.body;
+
+  console.log({ uid, title, number });
+
+  await updateUserArticle(firebaseWriter, uid, title, number);
+
   if (process.env.TEXT_NOTIFICATIONS) {
     numbers.forEach((phone) => {
       twilioSend.messages.create({
