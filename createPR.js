@@ -23,7 +23,7 @@ const createPR = async function (req, headers, branch, owner, repo) {
   });
 
   const PRResponse = await makePR.json();
-  // console.log(PRResponse);
+  console.log(PRResponse);
   return PRResponse;
 };
 
